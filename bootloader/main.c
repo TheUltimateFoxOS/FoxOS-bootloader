@@ -1,13 +1,17 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
+#include <stddef.h>
+#include "framebuffer.h"
+#include "font.h"
+#include "bootinfo.h"
 #include "util.c"
 
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"Hello World!\n\r");
 
-	EFI_FILE* kernel = load_file(NULL, L"foxkrnl.elf", ImageHandle, SystemTable);
+	EFI_FILE* kernel = load_file(NULL, L"EFI\\FOXOS\\foxkrnl.elf", ImageHandle, SystemTable);
 	if(kernel == NULL) {
 		Print(L"Kernel load error\n\r");
 		return EFI_LOAD_ERROR;
@@ -60,9 +64,31 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	Print(L"Kernel loaded\n\r");
 
-	int (*kernel_start)() = ((__attribute__((sysv_abi)) int (*)() ) header.e_entry);
+	void (*kernel_start)(bootinfo_t*) = ((__attribute__((sysv_abi)) void (*)(bootinfo_t*) ) header.e_entry);
 
-	Print(L"%d\r\n", kernel_start());
+	framebuffer_t* buffer = initialize_gop();
+
+	if(buffer == NULL) {
+		Print(L"Unable to locate GOP\n\r");
+		return EFI_DEVICE_ERROR;
+	} else {
+		print_framebuffer_info(buffer);
+	}
+
+	psf1_font_t* font = load_psf1_font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
+
+	if(font == NULL) {
+		Print(L"Font load error\n\r");
+		return EFI_LOAD_ERROR;
+	} else {
+		Print(L"Font load success\n\r");
+	}
+
+	bootinfo_t bootinfo;
+	bootinfo.framebuffer = buffer;
+	bootinfo.font = font;
+
+	kernel_start(&bootinfo);
 
 	return EFI_SUCCESS;
 }
