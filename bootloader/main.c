@@ -84,11 +84,29 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		Print(L"Font load success\n\r");
 	}
 
+	EFI_MEMORY_DESCRIPTOR* map = NULL;
+	UINTN map_size;
+	UINTN map_key;
+	UINTN descriptor_size;
+	UINT32 descriptor_version;
+	{
+		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		SystemTable->BootServices->AllocatePool(EfiLoaderData, map_size, (void**) &map);
+		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+	}
+
 	bootinfo_t bootinfo;
 	bootinfo.framebuffer = buffer;
 	bootinfo.font = font;
+	bootinfo.m_map = map;
+	bootinfo.m_map_size = map_size;
+	bootinfo.m_map_desc_size = descriptor_size;
+
+	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key);
 
 	kernel_start(&bootinfo);
+
+	Print(L"Kernel returned. Thats a big no no\n\r");
 
 	return EFI_SUCCESS;
 }
