@@ -75,7 +75,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		print_framebuffer_info(buffer);
 	}
 
-	psf1_font_t* font = load_psf1_font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
+	psf1_font_t* font = load_psf1_font(NULL, L"EFI\\FOXOS\\zap-light16.psf", ImageHandle, SystemTable);
 
 	if(font == NULL) {
 		Print(L"Font load error\n\r");
