@@ -1,3 +1,10 @@
+UINTN strcmp(CHAR8* a, CHAR8* b, UINTN length){
+	for (UINTN i = 0; i < length; i++){
+		if (*a != *b) return 0;
+	}
+	return 1;
+}
+
 EFI_FILE* load_file(EFI_FILE* dir, CHAR16* path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable){
 	EFI_FILE* loaded_file;
 

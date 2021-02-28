@@ -7,6 +7,7 @@ typedef struct {
 	EFI_MEMORY_DESCRIPTOR* m_map;
 	UINTN m_map_size;
 	UINTN m_map_desc_size;
+	void* rsdp;
 } bootinfo_t;
 
 #endif

@@ -95,12 +95,27 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
 	}
 
+	EFI_CONFIGURATION_TABLE* config_table = SystemTable->ConfigurationTable;
+	void* rsdp = NULL; 
+	EFI_GUID acpi_2_table_guid = ACPI_20_TABLE_GUID;
+
+	for (UINTN index = 0; index < SystemTable->NumberOfTableEntries; index++){
+		if (CompareGuid(&config_table[index].VendorGuid, &acpi_2_table_guid)){
+			if (strcmp((CHAR8*)"RSD PTR ", (CHAR8*)config_table->VendorTable, 8)){
+				rsdp = (void*)config_table->VendorTable;
+				//break;
+			}
+		}
+		config_table++;
+	}
+
 	bootinfo_t bootinfo;
 	bootinfo.framebuffer = buffer;
 	bootinfo.font = font;
 	bootinfo.m_map = map;
 	bootinfo.m_map_size = map_size;
 	bootinfo.m_map_desc_size = descriptor_size;
+	bootinfo.rsdp = rsdp;
 
 	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key);
 
