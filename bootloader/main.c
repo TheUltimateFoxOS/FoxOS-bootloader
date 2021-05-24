@@ -75,14 +75,14 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		print_framebuffer_info(buffer);
 	}
 
-	psf1_font_t* font = load_psf1_font(NULL, L"EFI\\FOXOS\\zap-light16.psf", ImageHandle, SystemTable);
+	/*psf1_font_t* font = load_psf1_font(NULL, L"EFI\\FOXOS\\zap-light16.psf", ImageHandle, SystemTable);
 
 	if(font == NULL) {
 		Print(L"Font load error\n\r");
 		return EFI_LOAD_ERROR;
 	} else {
 		Print(L"Font load success\n\r");
-	}
+	}*/
 
 	EFI_MEMORY_DESCRIPTOR* map = NULL;
 	UINTN map_size;
@@ -111,7 +111,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	bootinfo_t bootinfo;
 	bootinfo.framebuffer = buffer;
-	bootinfo.font = font;
+	//bootinfo.font = font;
 	bootinfo.m_map = map;
 	bootinfo.m_map_size = map_size;
 	bootinfo.m_map_desc_size = descriptor_size;
